@@ -1,0 +1,19 @@
+name: Check RAR and ZIP Content-Type
+description: Checks if the server is sending a response with a Content-Type of .rar or .zip
+
+ requests:
+  - method: GET
+    path:
+      - "{{BaseURL}}/{{BaseURL}}.rar"
+      - "{{BaseURL}}/{{BaseURL}}.zip"
+    matchers-condition: or
+
+matchers:
+  - headers:
+      - "content-type: application/vnd.rar"
+      - "content-type: application/x-rar-compressed"
+      - "content-type: application/octet-stream"
+      - "content-type: application/zip"
+      - "content-type: application/x-zip-compressed"
+      - "content-type: multipart/x-zip"
+        condition: or
