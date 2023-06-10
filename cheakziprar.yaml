@@ -1,0 +1,99 @@
+id: download-files
+
+info:
+  name: Download Files ZIP RAR
+  author: Hussein A.TAHA
+  severity: High
+
+# Define the required inputs
+inputs:
+  domain_list:
+    required: true
+    type: string
+    description: Path to the file containing the list of domains
+
+# Define the sequence of requests to be made
+nuclei-templates:
+  - id: zip-file
+    info:
+      name: Check for ZIP file
+      severity: High
+    type: http
+    matchers:
+      - type: status
+        status:
+          - 200
+    requests:
+      - method: GET
+        path:
+          - "{{FQDN}}/{{FQDN}}.zip"
+  - id: rar-file
+    info:
+      name: Check for RAR file
+      severity: High
+    type: http
+    matchers:
+      - type: status
+        status:
+          - 200
+    requests:
+      - method: GET
+        path:
+          - "{{FQDN}}/{{FQDN}}.rar"
+
+# Define the workflow
+workflow:
+  - forEach:
+      domain: "{{cat ./$domain_list}}"
+      do:
+        - execute:
+            template: zip-file
+            port: 80
+            vars:
+              FQDN: "{{domain}}"
+            onResult:
+              - if:
+                  - "'{{zip-file.status}}' == '200 OK'"
+                then:
+                  - execute:
+                      template: download-zip
+                      port: 80
+                      vars:
+                        FQDN: "{{domain}}"
+        - execute:
+            template: rar-file
+            port: 80
+            vars:
+              FQDN: "{{domain}}"
+            onResult:
+              - if:
+                  - "'{{rar-file.status}}' == '200 OK'"
+                then:
+                  - execute:
+                      template: download-rar
+                      port: 80
+                      vars:
+                        FQDN: "{{domain}}"
+
+# Define the templates for downloading the files
+templates:
+  - id: download-zip
+    info:
+      name: Download ZIP File
+      severity: High
+    type: http
+    requests:
+      - method: GET
+        path:
+          - "{{FQDN}}/{{FQDN}}.zip"
+        output: "{{FQDN}}.zip"
+  - id: download-rar
+    info:
+      name: Download RAR File
+      severity: High
+    type: http
+    requests:
+      - method: GET
+        path:
+          - "{{FQDN}}/{{FQDN}}.rar"
+        output: "{{FQDN}}.rar"
