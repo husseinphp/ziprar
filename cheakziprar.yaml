@@ -19,15 +19,14 @@ requests:
        - "{{BaseURL}}/{{Host}}.zip"
 
     
-matchers:
-  - headers:
-      - "content-type: application/vnd.rar"
-      - "content-type: application/x-rar-compressed"
-      - "content-type: application/octet-stream"
-      - "content-type: application/zip"
-      - "content-type: application/x-zip-compressed"
-      - "content-type: multipart/x-zip"
+    matchers:
+      - type: word
+        part: header
+        words:
+          - "application/zip"
+          - "content-type: application/vnd.rar"
+          - "content-type: application/x-rar-compressed"
+          - "content-type: application/octet-stream"
+          - "content-type: application/x-zip-compressed"
+          - "content-type: multipart/x-zip"
         condition: or
-
-
-# Enhanced by mp on 2022/02/21
